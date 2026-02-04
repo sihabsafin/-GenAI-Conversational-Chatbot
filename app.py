@@ -333,7 +333,9 @@ if user_input:
 footer_color = "#888" if st.session_state.theme_mode == "dark" else "#666"
 st.markdown(f"""
 <div style='text-align: center; padding: 30px 0 10px 0; color: {footer_color}; font-size: 13px; border-top: 1px solid {"#333" if st.session_state.theme_mode == "dark" else "#eee"}; margin-top: 40px;'>
-    <p>Built with ❤️ using Groq, LangChain & Streamlit</p>
-    <p style='margin-top: 5px;'>⚡ Ultra-fast AI responses • 🎯 Multiple models • 🎨 Beautiful interface</p>
+    <p>Built with passion using <b>Groq</b>, <b>LangChain</b> and <b>Streamlit</b></p>
+    <p style='margin-top: 5px;'><b>Ultra-fast AI Responses</b> • <b>Multi-Model Support</b> • <b>Modern Conversational Experience</b></p>
+    <p style='margin-top: 8px;'>Founded and developed by <b>Sihab Safin</b> — delivering intelligent solutions with a creator’s vision.</p>
 </div>
 """, unsafe_allow_html=True)
+
