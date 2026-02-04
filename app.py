@@ -1,25 +1,54 @@
 import streamlit as st
-from llm import get_answer
+from llm_engine import get_ai_response
+from pathlib import Path
 
+# Page config
 st.set_page_config(
-    page_title="GenAI Q&A Chatbot",
+    page_title="GenAI Conversational Chatbot",
     page_icon="🤖",
     layout="centered"
 )
 
-st.title("🤖 GenAI Q&A Chatbot")
-st.caption("Powered by Groq + LangChain")
+# Load custom CSS
+css_path = Path("assets/style.css")
+if css_path.exists():
+    st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
-user_input = st.text_input(
-    "Ask your question:",
-    placeholder="e.g. What is Generative AI?"
-)
+# Header
+st.markdown("## 🤖 GenAI Conversational Chatbot")
+st.caption("Powered by Groq • Built with LangChain • Deployed via Streamlit")
 
-if st.button("Get Answer"):
-    if user_input.strip():
-        with st.spinner("Thinking..."):
-            answer = get_answer(user_input)
-        st.markdown("### ✅ Answer")
-        st.write(answer)
+# Session state for chat
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat history
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.markdown(
+            f"<div class='chat-bubble-user'>{msg['content']}</div>",
+            unsafe_allow_html=True
+        )
     else:
-        st.warning("Please enter a question.")
+        st.markdown(
+            f"<div class='chat-bubble-bot'>{msg['content']}</div>",
+            unsafe_allow_html=True
+        )
+
+# Input box
+user_input = st.chat_input("Ask anything...")
+
+if user_input:
+    # Show user message
+    st.session_state.messages.append(
+        {"role": "user", "content": user_input}
+    )
+
+    with st.spinner("Thinking..."):
+        response = get_ai_response(user_input)
+
+    st.session_state.messages.append(
+        {"role": "assistant", "content": response}
+    )
+
+    st.rerun()
