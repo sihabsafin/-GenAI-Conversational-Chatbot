@@ -3,10 +3,15 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 import os
 
+# Explicitly read the key
+if not os.getenv("GROQ_API_KEY"):
+    raise ValueError("GROQ_API_KEY is not set in environment variables")
+    
 # Initialize Groq LLM
 llm = ChatGroq(
     model="gemma2-9b-it",
     temperature=0.3
+    api_key=os.getenv("GROQ_API_KEY")
 )
 
 # Prompt template with history placeholder
