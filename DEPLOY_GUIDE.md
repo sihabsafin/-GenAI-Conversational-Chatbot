@@ -1,203 +1,507 @@
-# 🚀 Quick Deploy to Streamlit Cloud (5 Minutes)
+# 🚀 ContextIQ Deployment Guide
 
-## ✅ What You Need
+## Deployment Options
 
-1. **GitHub account** (free) - [github.com](https://github.com)
-2. **Streamlit account** (free) - [streamlit.io/cloud](https://streamlit.io/cloud)
-3. **Groq API key** (free) - [console.groq.com](https://console.groq.com)
+### Option 1: Streamlit Cloud (Recommended - FREE!)
 
----
+#### Prerequisites
+- GitHub account
+- Groq API key
+- (Optional) Tavily API key
+- (Optional) LangSmith API key
 
-## 🎯 Option 1: Deploy from GitHub (Recommended)
+#### Step-by-Step
 
-### Step 1: Get Your Groq API Key (1 minute)
-
-1. Go to https://console.groq.com
-2. Sign up (free, no credit card!)
-3. Click **"API Keys"** → **"Create API Key"**
-4. Copy your key (starts with `gsk_...`)
-
-### Step 2: Push Code to GitHub (2 minutes)
-
+1. **Push to GitHub**
 ```bash
-# Navigate to your project folder
-cd streamlit-deploy
-
-# Initialize git
 git init
 git add .
-git commit -m "Initial commit"
-
-# Create repo on GitHub, then:
+git commit -m "Initial commit - ContextIQ with all features"
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/contextiq.git
+git remote add origin https://github.com/yourusername/contextiq.git
 git push -u origin main
 ```
 
-**Don't have git?** 
-- Go to [github.com/new](https://github.com/new)
-- Create new repo named "contextiq"
-- Upload all files from web interface
+2. **Deploy on Streamlit Cloud**
 
-### Step 3: Deploy on Streamlit (2 minutes)
+a. Go to [share.streamlit.io](https://share.streamlit.io/)
 
-1. Go to https://share.streamlit.io
-2. Click **"New app"**
-3. Connect to GitHub (if first time)
-4. Fill in:
-   - **Repository**: `YOUR_USERNAME/contextiq`
-   - **Branch**: `main`
-   - **Main file**: `app.py`
-5. Click **"Advanced settings"**
-6. In **Secrets**, paste:
-   ```toml
-   GROQ_API_KEY = "gsk_your_actual_api_key_here"
-   ```
-7. Click **"Deploy!"**
-8. Wait 2-3 minutes ☕
-9. **Done!** Your app is live! 🎉
+b. Click "New app"
 
----
+c. Select your repository: `yourusername/contextiq`
 
-## 🎯 Option 2: Deploy Without Git (Direct Upload)
+d. Set main file path: `app.py`
 
-### For GitHub Desktop Users:
+e. Click "Advanced settings"
 
-1. Open GitHub Desktop
-2. File → Add Local Repository → Select your folder
-3. Commit changes
-4. Publish repository
-5. Follow Step 3 above
-
-### For Non-Git Users:
-
-1. Zip your `streamlit-deploy` folder
-2. Go to [github.com/new](https://github.com/new)
-3. Create repo, then upload zip
-4. Extract files in GitHub
-5. Follow Step 3 above
-
----
-
-## 🔧 Adding Secrets After Deployment
-
-If you forgot to add secrets during deployment:
-
-1. Go to your app dashboard: https://share.streamlit.io
-2. Click on your app
-3. Click **"Settings"** (⚙️ icon)
-4. Click **"Secrets"** in sidebar
-5. Paste:
-   ```toml
-   GROQ_API_KEY = "gsk_your_actual_key_here"
-   ```
-6. Click **"Save"**
-7. App automatically restarts! ✅
-
----
-
-## 📱 Share Your App
-
-Your app URL will be:
-```
-https://YOUR_USERNAME-contextiq-app-RANDOM.streamlit.app
+f. Add your secrets:
+```toml
+GROQ_API_KEY = "gsk_your_actual_key"
+TAVILY_API_KEY = "tvly_your_actual_key"  # Optional
+LANGSMITH_API_KEY = "ls_your_actual_key"  # Optional
 ```
 
-**Pro tip**: You can customize the URL in settings!
+g. Click "Deploy"
+
+h. Wait 2-3 minutes for deployment
+
+i. Your app is live! 🎉
+
+**Your app URL will be:**
+`https://yourusername-contextiq-app-randomid.streamlit.app`
 
 ---
 
-## 🎨 Customize After Deploy
+### Option 2: Docker Deployment
 
-Want to make changes?
+#### Create Dockerfile
 
-1. Edit files locally
-2. Test: `streamlit run app.py`
-3. Push to GitHub:
-   ```bash
-   git add .
-   git commit -m "Updated feature"
-   git push
-   ```
-4. Streamlit auto-updates! ⚡
+```dockerfile
+FROM python:3.10-slim
 
----
+WORKDIR /app
 
-## ✅ Deployment Checklist
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-Before deploying, make sure:
+# Copy application
+COPY . .
 
-- [ ] All files in folder (app.py, llm_engine.py, requirements.txt)
-- [ ] Got your Groq API key
-- [ ] Created GitHub account
-- [ ] Created Streamlit account
-- [ ] Code pushed to GitHub
-- [ ] Secrets added in Streamlit
+# Create .streamlit directory
+RUN mkdir -p .streamlit
 
----
+# Expose port
+EXPOSE 8501
 
-## 🆘 Troubleshooting
+# Health check
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
-### "Error: GROQ_API_KEY not found"
-→ Add it in Streamlit Settings → Secrets
+# Run app
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+```
 
-### "App won't start"
-→ Check logs in Streamlit dashboard
-→ Verify requirements.txt
+#### Build and Run
 
-### "Repository not found"
-→ Make sure repo is public
-→ Reconnect GitHub in Streamlit
+```bash
+# Build image
+docker build -t contextiq .
 
-### "Build failed"
-→ Check all files are pushed
-→ Verify requirements.txt syntax
+# Run container with environment variables
+docker run -p 8501:8501 \
+  -e GROQ_API_KEY="your_key" \
+  -e TAVILY_API_KEY="your_key" \
+  -e LANGSMITH_API_KEY="your_key" \
+  contextiq
+```
 
----
+#### Docker Compose (docker-compose.yml)
 
-## 💡 Tips
+```yaml
+version: '3.8'
 
-✅ **Use descriptive repo name** (e.g., "contextiq-ai-assistant")  
-✅ **Make repo public** for free hosting  
-✅ **Keep secrets.toml in .gitignore** (it's already there)  
-✅ **Test locally first** with `streamlit run app.py`  
-✅ **Check Streamlit logs** if issues occur  
+services:
+  contextiq:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY}
+    volumes:
+      - ./conversations.db:/app/conversations.db
+    restart: unless-stopped
+```
 
----
-
-## 🎉 Success!
-
-Your AI assistant is now live and accessible to anyone!
-
-**Next steps:**
-- Share your app URL with friends
-- Customize the UI in `app.py`
-- Add new features
-- Join Streamlit community
-
----
-
-## 📊 Streamlit Cloud Features
-
-**Free Tier Includes:**
-- ✅ Unlimited public apps
-- ✅ 1 GB RAM per app
-- ✅ Auto-deploys from GitHub
-- ✅ HTTPS & custom domains
-- ✅ 99.9% uptime
-- ✅ Community support
-
-**Total Cost: $0** 🎉
+Run with:
+```bash
+docker-compose up -d
+```
 
 ---
 
-## 🔗 Useful Links
+### Option 3: AWS EC2
 
-- **Streamlit Docs**: https://docs.streamlit.io
-- **Deploy Docs**: https://docs.streamlit.io/streamlit-community-cloud
-- **Groq Docs**: https://console.groq.com/docs
-- **Community**: https://discuss.streamlit.io
+#### 1. Launch EC2 Instance
+
+- AMI: Ubuntu 22.04 LTS
+- Instance type: t2.medium (or t2.micro for testing)
+- Security group: Allow ports 22 (SSH) and 8501 (Streamlit)
+
+#### 2. Connect and Setup
+
+```bash
+# SSH into instance
+ssh -i your-key.pem ubuntu@your-ec2-ip
+
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Python and pip
+sudo apt install python3-pip python3-venv -y
+
+# Clone repository
+git clone https://github.com/yourusername/contextiq.git
+cd contextiq
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create secrets file
+mkdir -p .streamlit
+nano .streamlit/secrets.toml
+# Add your API keys and save
+
+# Run with nohup (background)
+nohup streamlit run app.py --server.port=8501 --server.address=0.0.0.0 &
+```
+
+#### 3. Access Your App
+
+Visit: `http://your-ec2-ip:8501`
+
+#### 4. Optional: Setup Nginx Reverse Proxy
+
+```bash
+# Install Nginx
+sudo apt install nginx -y
+
+# Configure Nginx
+sudo nano /etc/nginx/sites-available/contextiq
+```
+
+Add:
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:8501;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+```bash
+# Enable site
+sudo ln -s /etc/nginx/sites-available/contextiq /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+Now accessible at: `http://your-domain.com`
 
 ---
 
-**Happy Deploying!** 🚀✨
+### Option 4: Heroku
+
+#### 1. Create Heroku App
+
+```bash
+# Install Heroku CLI
+curl https://cli-assets.heroku.com/install.sh | sh
+
+# Login
+heroku login
+
+# Create app
+heroku create your-contextiq-app
+
+# Set buildpack
+heroku buildpacks:set heroku/python
+```
+
+#### 2. Create Procfile
+
+```
+web: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
+```
+
+#### 3. Create setup.sh
+
+```bash
+mkdir -p ~/.streamlit/
+
+echo "\
+[server]\n\
+headless = true\n\
+port = $PORT\n\
+enableCORS = false\n\
+\n\
+" > ~/.streamlit/config.toml
+```
+
+#### 4. Update requirements.txt
+
+Add at the end:
+```
+gunicorn==20.1.0
+```
+
+#### 5. Deploy
+
+```bash
+# Set environment variables
+heroku config:set GROQ_API_KEY="your_key"
+heroku config:set TAVILY_API_KEY="your_key"
+heroku config:set LANGSMITH_API_KEY="your_key"
+
+# Deploy
+git push heroku main
+
+# Open app
+heroku open
+```
+
+---
+
+### Option 5: Google Cloud Run
+
+#### 1. Prepare for Cloud Run
+
+Create `Dockerfile`:
+```dockerfile
+FROM python:3.10-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+ENV PORT=8080
+
+CMD streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
+```
+
+#### 2. Deploy
+
+```bash
+# Install Google Cloud SDK
+# Then authenticate
+gcloud auth login
+
+# Set project
+gcloud config set project YOUR_PROJECT_ID
+
+# Build and deploy
+gcloud run deploy contextiq \
+  --source . \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars GROQ_API_KEY="your_key",TAVILY_API_KEY="your_key"
+```
+
+---
+
+## Environment Variables Setup
+
+For all deployment options, you need these environment variables:
+
+### Required
+```
+GROQ_API_KEY=gsk_your_groq_api_key_here
+```
+
+### Optional (for full features)
+```
+TAVILY_API_KEY=tvly_your_tavily_key_here
+LANGSMITH_API_KEY=ls_your_langsmith_key_here
+```
+
+---
+
+## Post-Deployment Checklist
+
+After deploying, verify:
+
+- [ ] App loads successfully
+- [ ] Can select all 4 models
+- [ ] Can send messages and get responses
+- [ ] Streaming works (if enabled)
+- [ ] Conversations save to database
+- [ ] Can browse conversation history
+- [ ] Web search works (if API key added)
+- [ ] Can download user guide PDF
+- [ ] Can export conversations
+- [ ] Copy/regenerate buttons work
+- [ ] Theme toggle works
+
+---
+
+## Monitoring & Maintenance
+
+### Streamlit Cloud
+- View logs in Streamlit Cloud dashboard
+- Monitor app health
+- Check resource usage
+- Update via git push
+
+### Docker
+```bash
+# View logs
+docker logs contextiq
+
+# Restart container
+docker restart contextiq
+
+# Update app
+git pull
+docker-compose up -d --build
+```
+
+### EC2
+```bash
+# Check app status
+ps aux | grep streamlit
+
+# View logs
+cat nohup.out
+
+# Restart app
+pkill -f streamlit
+nohup streamlit run app.py &
+```
+
+---
+
+## Scaling Considerations
+
+### For High Traffic:
+
+1. **Use Multiple Instances**
+   - Deploy on multiple servers
+   - Use load balancer
+
+2. **Optimize Database**
+   - Consider PostgreSQL instead of SQLite
+   - Add database indexes
+   - Implement connection pooling
+
+3. **Cache Responses**
+   - Add Redis caching
+   - Cache common queries
+   - Reduce API calls
+
+4. **Rate Limiting**
+   - Implement user rate limits
+   - Protect against abuse
+   - Monitor API usage
+
+---
+
+## Security Best Practices
+
+1. **API Keys**
+   - Never commit secrets to git
+   - Use environment variables
+   - Rotate keys regularly
+
+2. **HTTPS**
+   - Always use HTTPS in production
+   - Get SSL certificate (Let's Encrypt)
+   - Enforce HTTPS redirects
+
+3. **Access Control**
+   - Add authentication if needed
+   - Implement user management
+   - Monitor access logs
+
+4. **Database**
+   - Regular backups
+   - Encrypt sensitive data
+   - Secure file permissions
+
+---
+
+## Troubleshooting Deployment Issues
+
+### App Won't Start
+- Check Python version (3.8+)
+- Verify all dependencies installed
+- Check environment variables set
+- Review error logs
+
+### Slow Performance
+- Upgrade instance size
+- Optimize database queries
+- Enable caching
+- Use CDN for static assets
+
+### Database Issues
+- Check file permissions
+- Ensure directory writable
+- Verify SQLite installed
+- Consider cloud database
+
+### API Errors
+- Verify API keys valid
+- Check API rate limits
+- Monitor API status pages
+- Implement retry logic
+
+---
+
+## Cost Estimates
+
+### Streamlit Cloud
+- **FREE** for public apps
+- 1GB resources
+- Unlimited users
+- Community support
+
+### AWS EC2
+- **t2.micro:** FREE tier eligible
+- **t2.small:** ~$17/month
+- **t2.medium:** ~$34/month
+- Plus data transfer costs
+
+### Heroku
+- **Free:** $0/month (limited dyno hours)
+- **Hobby:** $7/month
+- **Standard:** $25/month
+
+### Google Cloud Run
+- **Pay per use:** ~$5-20/month
+- Free tier: 2M requests/month
+- Auto-scaling included
+
+---
+
+## Recommended Deployment
+
+**For Personal Use:**
+→ Streamlit Cloud (FREE)
+
+**For Team/Company:**
+→ AWS EC2 with Nginx + SSL
+
+**For Enterprise:**
+→ Google Cloud Run or AWS with auto-scaling
+
+---
+
+## Getting Help
+
+If deployment fails:
+
+1. Check deployment logs
+2. Verify environment variables
+3. Test locally first
+4. Review specific platform docs
+5. Check GitHub Issues
+
+---
+
+**Happy Deploying! 🚀**
