@@ -1,11 +1,11 @@
-streamlit>=1.32.0
+streamlit==1.32.0
 langchain==0.2.16
 langchain-core==0.2.38
 langchain-groq==0.1.9
+langsmith==0.1.99
 langchain-community==0.2.16
 tavily-python==0.5.0
+sqlalchemy==2.0.30
 fpdf2==2.7.9
 pyperclip==1.8.2
 python-dotenv==1.0.1
-sqlalchemy>=2.1.0
-pydantic>=2.0.0
