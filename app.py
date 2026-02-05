@@ -329,5 +329,11 @@ if user_input:
     
     st.rerun()
 
-
-
+# Footer
+footer_color = "#888" if st.session_state.theme_mode == "dark" else "#666"
+st.markdown(f"""
+<div style='text-align: center; padding: 30px 0 10px 0; color: {footer_color}; font-size: 13px; border-top: 1px solid {"#333" if st.session_state.theme_mode == "dark" else "#eee"}; margin-top: 40px;'>
+    <p>Built with ❤️ using Groq, LangChain & Streamlit</p>
+    <p style='margin-top: 5px;'>⚡ Ultra-fast AI responses • 🎯 Multiple models • 🎨 Beautiful interface</p>
+</div>
+""", unsafe_allow_html=True)
